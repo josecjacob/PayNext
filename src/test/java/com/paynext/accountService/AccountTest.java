@@ -1,6 +1,7 @@
 package com.paynext.accountService;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.math.BigDecimal;
 
@@ -37,6 +38,12 @@ public class AccountTest {
 	}
 
 	@Test
+	public void testPasswordGeneration() {
+		classUnderTest = new Account("1234567890AB", "Test User", "testuser", null, new BigDecimal(10));
+		assertFalse(classUnderTest.getPassword().isEmpty());
+	}
+
+	@Test
 	public void testGetBalance() {
 		assertEquals("10", classUnderTest.getBalance());
 	}
@@ -61,19 +68,9 @@ public class AccountTest {
 		classUnderTest = new Account("1234567890AB", "Test User", " ", "testPassword", new BigDecimal(10));
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void testPasswordInvalidDueToNullString() {
-		classUnderTest = new Account("1234567890AB", "Test User", "testuser", null, new BigDecimal(10));
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testPasswordInvalidDueToEmptyString() {
 		classUnderTest = new Account("1234567890AB", "Test User", "testuser", " ", new BigDecimal(10));
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void testInitialBalanceInvalidDueToNullObject() {
-		classUnderTest = new Account("1234567890AB", "Test User", "testuser", "testPassword", null);
 	}
 
 	@Test
@@ -81,6 +78,12 @@ public class AccountTest {
 		classUnderTest = new Account("1234567890AB", "Test User", "testuser", "testPassword",
 				new BigDecimal("100000000000000000000000000000000000000000000000"));
 		assertEquals("100000000000000000000000000000000000000000000000", classUnderTest.getBalance());
+	}
+
+	@Test
+	public void testWithDefaultBalance() {
+		classUnderTest = new Account("1234567890AB", "Test User", "testuser", "testPassword", null);
+		assertEquals("100", classUnderTest.getBalance());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

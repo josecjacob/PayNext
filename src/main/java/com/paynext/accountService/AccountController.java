@@ -27,26 +27,33 @@ public class AccountController {
 
 	@RequestMapping("/createAccount")
 	public Account greeting(@RequestParam(value = "accountHolderName") String accountHolderName,
-			@RequestParam(value = "userName") String userName, @RequestParam(value = "password") String password,
-			@RequestParam(value = "initialBalance") String initialBalance) {
+			@RequestParam(value = "userName") String userName,
+			@RequestParam(value = "password", required = false) String password,
+			@RequestParam(value = "initialBalance", required = false) String initialBalance) {
 		validateRequestParameters(accountHolderName, userName, password, initialBalance);
 		String accountId = generateAccountID(accountHolderName);
 
 		Preconditions.checkArgument(!accountRepository.exists(accountId),
 				"The account with holder name: " + accountHolderName + " already exists.");
-		accountRepository.save(new AccountEntity(accountId, accountHolderName, userName, password,
-				new BigDecimal(initialBalance.replaceAll(",", ""))));
+		Preconditions.checkArgument(accountRepository.findByUserName(userName).size() == 0,
+				"The given username: " + userName + " has been taken.");
 
-		return new Account(accountId, accountHolderName, userName, password,
-				new BigDecimal(initialBalance.replaceAll(",", "")));
+		Account newAccount = null;
+		if (initialBalance != null) {
+			newAccount = new Account(accountId, accountHolderName, userName, password,
+					new BigDecimal(initialBalance.replaceAll(",", "")));
+		} else {
+			newAccount = new Account(accountId, accountHolderName, userName, password, null);
+		}
+		accountRepository.save(newAccount);
+
+		return newAccount;
 	}
 
 	private void validateRequestParameters(String accountHolderName, String userName, String password,
 			String initialBalance) {
 		Preconditions.checkNotNull(accountHolderName, "The account holder name cannot be null.");
 		Preconditions.checkNotNull(userName, "The username name cannot be null.");
-		Preconditions.checkNotNull(password, "The password name cannot be null.");
-		Preconditions.checkNotNull(initialBalance, "The initial balance name cannot be null.");
 	}
 
 	String generateAccountID(String accountHolderName) {
