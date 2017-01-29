@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -26,6 +27,7 @@ public class AccountController {
 	private AccountRepository accountRepository;
 
 	@RequestMapping("/createAccount")
+	@Transactional
 	public Account greeting(@RequestParam(value = "accountHolderName") String accountHolderName,
 			@RequestParam(value = "userName") String userName,
 			@RequestParam(value = "password", required = false) String password,
@@ -67,6 +69,52 @@ public class AccountController {
 		byte[] hash;
 		hash = digest.digest(accountHolderName.getBytes());
 		return new BigInteger(1, hash).toString(36).toUpperCase().substring(0, 12);
+	}
+
+	@RequestMapping("/findAccountByUserName")
+	@Transactional
+	public Account findAccountByUserName(@RequestParam(value = "userName") String userName) {
+
+		Preconditions.checkNotNull(userName, "The userName cannot be null.");
+
+		List<Account> accountsByUserName = accountRepository.findByUserName(userName);
+		if (accountsByUserName.size() == 0) {
+			throw new IllegalArgumentException("");
+		} else if (accountsByUserName.size() > 1) {
+			throw new IllegalStateException("Got more than one account with the same user name: " + userName);
+		} else {
+			return accountsByUserName.get(0);
+		}
+	}
+
+	@RequestMapping("/transferMoneyFromAnAccountToAnother")
+	@Transactional
+	public Account transferMoneyFromAnAccountToAnother(@RequestParam(value = "fromAccountId") String fromAccountId,
+			@RequestParam(value = "toAccountId") String toAccountId,
+			@RequestParam(value = "transferAmount") String transferAmount) {
+
+		Preconditions.checkNotNull(fromAccountId, "The fromAccountId cannot be null.");
+		Preconditions.checkNotNull(toAccountId, "The toAccountId cannot be null.");
+		Preconditions.checkNotNull(transferAmount, "The transferAmount cannot be null.");
+		String normalizedTransferAmount = transferAmount.replaceAll(",", "");
+
+		Account fromAccount = accountRepository.findByAccountId(fromAccountId);
+		Preconditions.checkArgument(fromAccount != null, "The account id: " + fromAccountId + " does not exist.");
+		BigDecimal transferAmountD = new BigDecimal(normalizedTransferAmount);
+		BigDecimal newBalance = new BigDecimal(fromAccount.getBalance()).subtract(transferAmountD);
+		Preconditions.checkArgument(newBalance.signum() != -1, "Not enough balance (" + fromAccount.getBalance()
+				+ ") in the from account to debit the following amount: " + normalizedTransferAmount);
+
+		Account toAccount = accountRepository.findByAccountId(toAccountId);
+		Preconditions.checkArgument(toAccount != null, "The account id: " + toAccountId + " does not exist.");
+
+		fromAccount.setBalance(newBalance);
+		toAccount.setBalance(new BigDecimal(toAccount.getBalance()).add(transferAmountD));
+
+		accountRepository.save(fromAccount);
+		accountRepository.save(toAccount);
+
+		return fromAccount;
 	}
 
 	@ExceptionHandler

@@ -51,6 +51,10 @@ public class Account implements Serializable {
 		return balance.toString();
 	}
 
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+
 	public Account(String accountId, String accountHolderName, String userName, String password,
 			BigDecimal initialBalance) {
 		Preconditions.checkNotNull(accountHolderName, "The account holder name cannot be null.");

@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import javax.transaction.Transactional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = Application.class)
+@Transactional
 public class AccountControllerTest {
 
 	@Autowired
@@ -66,15 +69,15 @@ public class AccountControllerTest {
 	public void testDuplicateAccount() throws Exception {
 
 		this.mockMvc
-				.perform(get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuser2")
-						.param("password", "testpassword2").param("initialBalance", "20"))
-				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
-				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
-				.andExpect(jsonPath("$.userName").value("testuser2"))
-				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("20"));
+				.perform(get("/createAccount").param("accountHolderName", "Test User").param("userName", "testuser")
+						.param("password", "testpassword").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
+				.andExpect(jsonPath("$.userName").value("testuser"))
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
 		this.mockMvc
-				.perform(get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuser2")
-						.param("password", "testpassword2").param("initialBalance", "20"))
+				.perform(get("/createAccount").param("accountHolderName", "Test User").param("userName", "testuser")
+						.param("password", "testpassword").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().is4xxClientError());
 	}
 
@@ -82,16 +85,34 @@ public class AccountControllerTest {
 	public void testUserNameExists() throws Exception {
 
 		this.mockMvc
-				.perform(get("/createAccount").param("accountHolderName", "Test User 3")
-						.param("userName", "testuserDuplicate").param("password", "testpassword3")
+				.perform(get("/createAccount").param("accountHolderName", "Test User")
+						.param("userName", "testuserDuplicate").param("password", "testpassword")
 						.param("initialBalance", "20"))
-				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("244700M1I0OT"))
-				.andExpect(jsonPath("$.accountHolderName").value("Test User 3"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
 				.andExpect(jsonPath("$.userName").value("testuserDuplicate"))
-				.andExpect(jsonPath("$.password").value("testpassword3")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
 		this.mockMvc.perform(
-				get("/createAccount").param("accountHolderName", "Test User 4").param("userName", "testuserDuplicate")
-						.param("password", "testpassword3").param("initialBalance", "20"))
+				get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuserDuplicate")
+						.param("password", "testpassword 2").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().is4xxClientError());
+	}
+
+	@Test
+	public void testFindAccountByUserName() throws Exception {
+
+		this.mockMvc
+				.perform(get("/createAccount").param("accountHolderName", "Test User").param("userName", "testuser")
+						.param("password", "testpassword").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
+				.andExpect(jsonPath("$.userName").value("testuser"))
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
+				.andExpect(jsonPath("$.userName").value("testuser"))
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
 	}
 }
