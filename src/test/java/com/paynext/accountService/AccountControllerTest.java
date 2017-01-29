@@ -50,7 +50,8 @@ public class AccountControllerTest {
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
 				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
 	}
 
 	@Test
@@ -62,7 +63,8 @@ public class AccountControllerTest {
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
 				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("100"));
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("100"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
 	}
 
 	@Test
@@ -113,6 +115,145 @@ public class AccountControllerTest {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
 				.andExpect(jsonPath("$.userName").value("testuser"))
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+	}
+
+	@Test
+	public void testDeleteAccountByAccountID() throws Exception {
+
+		this.mockMvc
+				.perform(get("/createAccount").param("accountHolderName", "Test User").param("userName", "testuser")
+						.param("password", "testpassword").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
+				.andExpect(jsonPath("$.userName").value("testuser"))
 				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
+
+		this.mockMvc.perform(get("/deleteAccountByAccountID").param("accountId", "3YAI6S2YE49N")).andDo(print())
+				.andExpect(status().isOk());
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
+				.andExpect(jsonPath("$.userName").value("testuser"))
+				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"))
+				.andExpect(jsonPath("$.tombstoned").value(true));
+	}
+
+	@Test
+	public void testTransferMoneyFromAnAccountToAnother() throws Exception {
+
+		this.mockMvc
+				.perform(get("/createAccount").param("accountHolderName", "Test User 1").param("userName", "testuser1")
+						.param("password", "testpassword1").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
+				.andExpect(jsonPath("$.userName").value("testuser1"))
+				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("20"));
+
+		this.mockMvc
+				.perform(get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuser2")
+						.param("password", "testpassword2").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
+				.andExpect(jsonPath("$.userName").value("testuser2"))
+				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("20"));
+
+		this.mockMvc
+				.perform(get("/transferMoneyFromAnAccountToAnother").param("fromAccountId", "4W9Z05L4VM4K")
+						.param("toAccountId", "H6VM3LXTCEAT").param("transferAmount", "10"))
+				.andDo(print()).andExpect(status().isOk());
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser1")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
+				.andExpect(jsonPath("$.userName").value("testuser1"))
+				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("10"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser2")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
+				.andExpect(jsonPath("$.userName").value("testuser2"))
+				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("30"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+
+		this.mockMvc
+				.perform(get("/transferMoneyFromAnAccountToAnother").param("fromAccountId", "4W9Z05L4VM4K")
+						.param("toAccountId", "H6VM3LXTCEAT").param("transferAmount", "10"))
+				.andDo(print()).andExpect(status().isOk());
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser1")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
+				.andExpect(jsonPath("$.userName").value("testuser1"))
+				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("0"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser2")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
+				.andExpect(jsonPath("$.userName").value("testuser2"))
+				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("40"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+
+		this.mockMvc.perform(get("/findAllAccountActivityForAccountId").param("accountId", "4W9Z05L4VM4K"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$[0].accountId").value("4W9Z05L4VM4K"))
+				.andExpect(jsonPath("$[0].amount").value("10")).andExpect(jsonPath("$[0].credit").value("false"))
+				.andExpect(jsonPath("$[0].accountId").value("4W9Z05L4VM4K"))
+				.andExpect(jsonPath("$[0].amount").value("10")).andExpect(jsonPath("$[0].credit").value("false"));
+
+		this.mockMvc.perform(get("/findAllAccountActivityForAccountId").param("accountId", "H6VM3LXTCEAT"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$[0].accountId").value("H6VM3LXTCEAT"))
+				.andExpect(jsonPath("$[0].amount").value("10")).andExpect(jsonPath("$[0].credit").value("true"))
+				.andExpect(jsonPath("$[0].accountId").value("H6VM3LXTCEAT"))
+				.andExpect(jsonPath("$[0].amount").value("10")).andExpect(jsonPath("$[0].credit").value("true"));
+	}
+
+	@Test
+	public void testTransferMoneyFromAnAccountToAnotherFailureDueToToumbstoning() throws Exception {
+
+		this.mockMvc
+				.perform(get("/createAccount").param("accountHolderName", "Test User 1").param("userName", "testuser1")
+						.param("password", "testpassword1").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
+				.andExpect(jsonPath("$.userName").value("testuser1"))
+				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("20"));
+
+		this.mockMvc
+				.perform(get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuser2")
+						.param("password", "testpassword2").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
+				.andExpect(jsonPath("$.userName").value("testuser2"))
+				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("20"));
+
+		this.mockMvc
+				.perform(get("/transferMoneyFromAnAccountToAnother").param("fromAccountId", "4W9Z05L4VM4K")
+						.param("toAccountId", "H6VM3LXTCEAT").param("transferAmount", "10"))
+				.andDo(print()).andExpect(status().isOk());
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser1")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
+				.andExpect(jsonPath("$.userName").value("testuser1"))
+				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("10"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+
+		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser2")).andDo(print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
+				.andExpect(jsonPath("$.userName").value("testuser2"))
+				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("30"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+
+		this.mockMvc.perform(get("/deleteAccountByAccountID").param("accountId", "4W9Z05L4VM4K"));
+
+		this.mockMvc
+				.perform(get("/transferMoneyFromAnAccountToAnother").param("fromAccountId", "4W9Z05L4VM4K")
+						.param("toAccountId", "H6VM3LXTCEAT").param("transferAmount", "10"))
+				.andDo(print()).andExpect(status().is4xxClientError());
 	}
 }

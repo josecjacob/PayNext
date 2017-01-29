@@ -15,7 +15,7 @@ import com.google.common.base.Preconditions;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(name = "vets")
+@Table(name = "account")
 public class Account implements Serializable {
 
 	@Id
@@ -26,6 +26,8 @@ public class Account implements Serializable {
 	public String userName;
 
 	private String accountHolderName;
+
+	private boolean tombstoned;
 
 	@Digits(integer = 20, fraction = 2)
 	@Column(name = "balance")
@@ -55,6 +57,14 @@ public class Account implements Serializable {
 		this.balance = balance;
 	}
 
+	public boolean isTombstoned() {
+		return tombstoned;
+	}
+
+	public void setTombstoned(boolean tombstoned) {
+		this.tombstoned = tombstoned;
+	}
+
 	public Account(String accountId, String accountHolderName, String userName, String password,
 			BigDecimal initialBalance) {
 		Preconditions.checkNotNull(accountHolderName, "The account holder name cannot be null.");
@@ -66,6 +76,7 @@ public class Account implements Serializable {
 		this.accountId = accountId;
 		this.accountHolderName = accountHolderName;
 		this.userName = userName;
+		this.tombstoned = false;
 
 		if (initialBalance == null) {
 			this.balance = new BigDecimal(100);

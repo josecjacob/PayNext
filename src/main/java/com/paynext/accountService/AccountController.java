@@ -26,6 +26,9 @@ public class AccountController {
 	@Autowired
 	private AccountRepository accountRepository;
 
+	@Autowired
+	private AccountActivityRepository accountActivityRepository;
+
 	@RequestMapping("/createAccount")
 	@Transactional
 	public Account greeting(@RequestParam(value = "accountHolderName") String accountHolderName,
@@ -76,6 +79,7 @@ public class AccountController {
 	public Account findAccountByUserName(@RequestParam(value = "userName") String userName) {
 
 		Preconditions.checkNotNull(userName, "The userName cannot be null.");
+		Preconditions.checkArgument(!userName.trim().isEmpty(), "The userName cannot be empty.");
 
 		List<Account> accountsByUserName = accountRepository.findByUserName(userName);
 		if (accountsByUserName.size() == 0) {
@@ -104,17 +108,54 @@ public class AccountController {
 		BigDecimal newBalance = new BigDecimal(fromAccount.getBalance()).subtract(transferAmountD);
 		Preconditions.checkArgument(newBalance.signum() != -1, "Not enough balance (" + fromAccount.getBalance()
 				+ ") in the from account to debit the following amount: " + normalizedTransferAmount);
+		Preconditions.checkArgument(!fromAccount.isTombstoned(), "The fromAccountId has been tombstoned");
 
 		Account toAccount = accountRepository.findByAccountId(toAccountId);
 		Preconditions.checkArgument(toAccount != null, "The account id: " + toAccountId + " does not exist.");
+		Preconditions.checkArgument(!toAccount.isTombstoned(), "The toAccount has been tombstoned");
 
 		fromAccount.setBalance(newBalance);
 		toAccount.setBalance(new BigDecimal(toAccount.getBalance()).add(transferAmountD));
 
+		AccountActivity fromAccountActivity = new AccountActivity(fromAccountId, false, transferAmountD);
+		AccountActivity toAccountActivity = new AccountActivity(toAccountId, true, transferAmountD);
 		accountRepository.save(fromAccount);
 		accountRepository.save(toAccount);
+		accountActivityRepository.save(fromAccountActivity);
+		accountActivityRepository.save(toAccountActivity);
 
 		return fromAccount;
+	}
+
+	@RequestMapping("/findAllAccountActivityForAccountId")
+	@Transactional
+	public List<AccountActivity> findAllAccountActivityForAccountId(
+			@RequestParam(value = "accountId") String accountId) {
+
+		Preconditions.checkNotNull(accountId, "The accountId cannot be null.");
+		Preconditions.checkArgument(!accountId.trim().isEmpty(), "The accountId cannot be empty.");
+
+		return accountActivityRepository.findByAccountId(accountId);
+	}
+
+	@RequestMapping("/deleteAccountByAccountID")
+	@Transactional
+	public boolean deleteAccountByAccountID(@RequestParam(value = "accountId") String accountId) {
+
+		Preconditions.checkNotNull(accountId, "The accountId cannot be null.");
+
+		Account account = accountRepository.findByAccountId(accountId);
+		Preconditions.checkArgument(account != null, "The account id: " + accountId + " does not exist.");
+
+		account.setTombstoned(true);
+		accountRepository.save(account);
+
+		return true;
+	}
+
+	@ExceptionHandler
+	void handleIllegalArgumentException(NullPointerException e, HttpServletResponse response) throws IOException {
+		response.sendError(HttpStatus.BAD_REQUEST.value());
 	}
 
 	@ExceptionHandler
