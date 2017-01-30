@@ -114,6 +114,38 @@ public class UserControllerTest {
 	}
 
 	@Test
+	public void testGetAllCurrentSessions() throws Exception {
+		this.mockMvc
+				.perform(get("/createAccount").param("accountHolderName", "Test User").param("userName", "testuser")
+						.param("password", "testpassword").param("initialBalance", "20"))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
+				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("20"))
+				.andExpect(jsonPath("$.tombstoned").value(false));
+
+		MvcResult result = this.mockMvc
+				.perform(get("/login").param("userName", "testuser").param("password",
+						"9f735e0df9a1ddc702bf0a1a7b83033f9f7153a00c29de82cedadc9957289b05"))
+				.andDo(print()).andExpect(status().isOk()).andReturn();
+		String sessionId = result.getResponse().getContentAsString();
+
+		this.mockMvc.perform(get("/getAllCurrentSessions")).andDo(print()).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].sessionId").value(sessionId))
+				.andExpect(jsonPath("$[0].userName").value("testuser"))
+				.andExpect(jsonPath("$[0].timeout").value(new Integer(10 * 60 * 60).toString()))
+				.andExpect(jsonPath("$[0].expired").value(false));
+
+		this.mockMvc.perform(get("/logout").param("sessionId", sessionId)).andDo(print()).andExpect(status().isOk());
+
+		result = this.mockMvc.perform(get("/getAllCurrentSessions")).andDo(print()).andExpect(status().isOk())
+				.andReturn();
+
+		String allSessions = result.getResponse().getContentAsString();
+		assertEquals("[]", allSessions);
+	}
+
+	@SuppressWarnings("serial")
+	@Test
 	public void testTouchSession() throws Exception {
 
 		this.mockMvc
@@ -136,7 +168,6 @@ public class UserControllerTest {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.setLongSerializationPolicy(LongSerializationPolicy.STRING);
 		Gson gson = gsonBuilder.create();
-		@SuppressWarnings("serial")
 		List<Map<String, String>> allSessions = gson.fromJson(result.getResponse().getContentAsString(),
 				new TypeToken<ArrayList<HashMap<String, String>>>() {
 				}.getType());

@@ -114,6 +114,12 @@ public class UserController {
 		return sessionRepository.findByUserName(userName);
 	}
 
+	@RequestMapping("/getAllCurrentSessions")
+	@Transactional
+	public List<Session> getAllCurrentSessions() {
+		return sessionRepository.findByExpired(false);
+	}
+
 	@RequestMapping("/expireSessionsOfUser")
 	@Transactional
 	public void expireSessionsOfUser(@RequestParam(value = "userName") String userName) {

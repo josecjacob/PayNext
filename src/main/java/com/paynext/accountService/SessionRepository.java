@@ -19,6 +19,9 @@ public interface SessionRepository extends JpaRepository<Session, String> {
 	List<Session> findByUserName(String userName);
 
 	@Transactional(readOnly = true)
+	List<Session> findByExpired(Boolean expired);
+
+	@Transactional(readOnly = true)
 	@Cacheable("sessions")
 	List<Session> findAll() throws DataAccessException;
 }
