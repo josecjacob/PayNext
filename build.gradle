@@ -25,6 +25,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+	compile("com.google.code.gson:gson:1.7.2")
 	compile("com.google.guava:guava:21.0")
 	compile("mysql:mysql-connector-java")
 	compile("org.hsqldb:hsqldb")
