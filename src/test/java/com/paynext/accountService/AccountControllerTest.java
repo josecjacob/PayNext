@@ -49,8 +49,7 @@ public class AccountControllerTest {
 						.param("password", "testpassword").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
-				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"))
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("20"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 	}
 
@@ -62,8 +61,7 @@ public class AccountControllerTest {
 						.param("password", "testpassword"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
-				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("100"))
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("100"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 	}
 
@@ -75,8 +73,7 @@ public class AccountControllerTest {
 						.param("password", "testpassword").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
-				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("20"));
 		this.mockMvc
 				.perform(get("/createAccount").param("accountHolderName", "Test User").param("userName", "testuser")
 						.param("password", "testpassword").param("initialBalance", "20"))
@@ -93,7 +90,7 @@ public class AccountControllerTest {
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
 				.andExpect(jsonPath("$.userName").value("testuserDuplicate"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.balance").value("20"));
 		this.mockMvc.perform(
 				get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuserDuplicate")
 						.param("password", "testpassword 2").param("initialBalance", "20"))
@@ -108,14 +105,12 @@ public class AccountControllerTest {
 						.param("password", "testpassword").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
-				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("20"));
 
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
-				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"))
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("20"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 	}
 
@@ -127,8 +122,7 @@ public class AccountControllerTest {
 						.param("password", "testpassword").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
-				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("20"));
 
 		this.mockMvc.perform(get("/deleteAccountByAccountID").param("accountId", "3YAI6S2YE49N")).andDo(print())
 				.andExpect(status().isOk());
@@ -136,8 +130,7 @@ public class AccountControllerTest {
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("3YAI6S2YE49N"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User"))
-				.andExpect(jsonPath("$.userName").value("testuser"))
-				.andExpect(jsonPath("$.password").value("testpassword")).andExpect(jsonPath("$.balance").value("20"))
+				.andExpect(jsonPath("$.userName").value("testuser")).andExpect(jsonPath("$.balance").value("20"))
 				.andExpect(jsonPath("$.tombstoned").value(true));
 	}
 
@@ -149,16 +142,14 @@ public class AccountControllerTest {
 						.param("password", "testpassword1").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
-				.andExpect(jsonPath("$.userName").value("testuser1"))
-				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.userName").value("testuser1")).andExpect(jsonPath("$.balance").value("20"));
 
 		this.mockMvc
 				.perform(get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuser2")
 						.param("password", "testpassword2").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
-				.andExpect(jsonPath("$.userName").value("testuser2"))
-				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.userName").value("testuser2")).andExpect(jsonPath("$.balance").value("20"));
 
 		this.mockMvc
 				.perform(get("/transferMoneyFromAnAccountToAnother").param("fromAccountId", "4W9Z05L4VM4K")
@@ -168,15 +159,13 @@ public class AccountControllerTest {
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser1")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
-				.andExpect(jsonPath("$.userName").value("testuser1"))
-				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("10"))
+				.andExpect(jsonPath("$.userName").value("testuser1")).andExpect(jsonPath("$.balance").value("10"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser2")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
-				.andExpect(jsonPath("$.userName").value("testuser2"))
-				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("30"))
+				.andExpect(jsonPath("$.userName").value("testuser2")).andExpect(jsonPath("$.balance").value("30"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 
 		this.mockMvc
@@ -187,15 +176,13 @@ public class AccountControllerTest {
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser1")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
-				.andExpect(jsonPath("$.userName").value("testuser1"))
-				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("0"))
+				.andExpect(jsonPath("$.userName").value("testuser1")).andExpect(jsonPath("$.balance").value("0"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser2")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
-				.andExpect(jsonPath("$.userName").value("testuser2"))
-				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("40"))
+				.andExpect(jsonPath("$.userName").value("testuser2")).andExpect(jsonPath("$.balance").value("40"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 
 		this.mockMvc.perform(get("/findAllAccountActivityForAccountId").param("accountId", "4W9Z05L4VM4K"))
@@ -219,16 +206,14 @@ public class AccountControllerTest {
 						.param("password", "testpassword1").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
-				.andExpect(jsonPath("$.userName").value("testuser1"))
-				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.userName").value("testuser1")).andExpect(jsonPath("$.balance").value("20"));
 
 		this.mockMvc
 				.perform(get("/createAccount").param("accountHolderName", "Test User 2").param("userName", "testuser2")
 						.param("password", "testpassword2").param("initialBalance", "20"))
 				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
-				.andExpect(jsonPath("$.userName").value("testuser2"))
-				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("20"));
+				.andExpect(jsonPath("$.userName").value("testuser2")).andExpect(jsonPath("$.balance").value("20"));
 
 		this.mockMvc
 				.perform(get("/transferMoneyFromAnAccountToAnother").param("fromAccountId", "4W9Z05L4VM4K")
@@ -238,15 +223,13 @@ public class AccountControllerTest {
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser1")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("4W9Z05L4VM4K"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 1"))
-				.andExpect(jsonPath("$.userName").value("testuser1"))
-				.andExpect(jsonPath("$.password").value("testpassword1")).andExpect(jsonPath("$.balance").value("10"))
+				.andExpect(jsonPath("$.userName").value("testuser1")).andExpect(jsonPath("$.balance").value("10"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 
 		this.mockMvc.perform(get("/findAccountByUserName").param("userName", "testuser2")).andDo(print())
 				.andExpect(status().isOk()).andExpect(jsonPath("$.accountId").value("H6VM3LXTCEAT"))
 				.andExpect(jsonPath("$.accountHolderName").value("Test User 2"))
-				.andExpect(jsonPath("$.userName").value("testuser2"))
-				.andExpect(jsonPath("$.password").value("testpassword2")).andExpect(jsonPath("$.balance").value("30"))
+				.andExpect(jsonPath("$.userName").value("testuser2")).andExpect(jsonPath("$.balance").value("30"))
 				.andExpect(jsonPath("$.tombstoned").value(false));
 
 		this.mockMvc.perform(get("/deleteAccountByAccountID").param("accountId", "4W9Z05L4VM4K"));

@@ -29,9 +29,12 @@ public class AccountController {
 	@Autowired
 	private AccountActivityRepository accountActivityRepository;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	@RequestMapping("/createAccount")
 	@Transactional
-	public Account greeting(@RequestParam(value = "accountHolderName") String accountHolderName,
+	public Account createAccount(@RequestParam(value = "accountHolderName") String accountHolderName,
 			@RequestParam(value = "userName") String userName,
 			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "initialBalance", required = false) String initialBalance) {
@@ -43,14 +46,20 @@ public class AccountController {
 		Preconditions.checkArgument(accountRepository.findByUserName(userName).size() == 0,
 				"The given username: " + userName + " has been taken.");
 
+		Preconditions.checkArgument(!userRepository.exists(userName),
+				"The given username: " + userName + " has been taken.");
+
 		Account newAccount = null;
 		if (initialBalance != null) {
-			newAccount = new Account(accountId, accountHolderName, userName, password,
+			newAccount = new Account(accountId, accountHolderName, userName,
 					new BigDecimal(initialBalance.replaceAll(",", "")));
 		} else {
-			newAccount = new Account(accountId, accountHolderName, userName, password, null);
+			newAccount = new Account(accountId, accountHolderName, userName, null);
 		}
 		accountRepository.save(newAccount);
+
+		User newUser = new User(userName, password, "regular");
+		userRepository.save(newUser);
 
 		return newAccount;
 	}

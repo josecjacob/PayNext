@@ -7,12 +7,15 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface AccountActivityRepository extends JpaRepository<AccountActivity, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
 
 	@Transactional(readOnly = true)
-	List<AccountActivity> findByAccountId(String accountId);
+	boolean exists(String userName);
 
 	@Transactional(readOnly = true)
-	@Cacheable("accountActivities")
-	List<AccountActivity> findAll() throws DataAccessException;
+	User findByUserName(String userName);
+
+	@Transactional(readOnly = true)
+	@Cacheable("users")
+	List<User> findAll() throws DataAccessException;
 }

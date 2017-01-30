@@ -2,8 +2,6 @@ package com.paynext.accountService;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,9 +19,7 @@ public class Account implements Serializable {
 	@Id
 	private String accountId;
 
-	public String password;
-
-	public String userName;
+	private String userName;
 
 	private String accountHolderName;
 
@@ -45,10 +41,6 @@ public class Account implements Serializable {
 		return userName;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
 	public String getBalance() {
 		return balance.toString();
 	}
@@ -65,13 +57,12 @@ public class Account implements Serializable {
 		this.tombstoned = tombstoned;
 	}
 
-	public Account(String accountId, String accountHolderName, String userName, String password,
-			BigDecimal initialBalance) {
+	public Account(String accountId, String accountHolderName, String userName, BigDecimal initialBalance) {
 		Preconditions.checkNotNull(accountHolderName, "The account holder name cannot be null.");
-		Preconditions.checkNotNull(userName, "The username name cannot be null.");
+		Preconditions.checkNotNull(userName, "The username cannot be null.");
 
 		Preconditions.checkArgument(!accountHolderName.trim().isEmpty(), "The account holder name cannot be empty.");
-		Preconditions.checkArgument(!userName.trim().isEmpty(), "The username name cannot be empty.");
+		Preconditions.checkArgument(!userName.trim().isEmpty(), "The username cannot be empty.");
 
 		this.accountId = accountId;
 		this.accountHolderName = accountHolderName;
@@ -81,16 +72,8 @@ public class Account implements Serializable {
 		if (initialBalance == null) {
 			this.balance = new BigDecimal(100);
 		} else {
-			Preconditions.checkArgument(initialBalance.signum() != -1, "The initial balance name cannot be negative.");
+			Preconditions.checkArgument(initialBalance.signum() != -1, "The initial balance cannot be negative.");
 			this.balance = initialBalance;
-		}
-
-		if (password != null) {
-			Preconditions.checkArgument(!password.trim().isEmpty(), "The password name cannot be empty.");
-			this.password = password;
-		} else {
-			SecureRandom random = new SecureRandom();
-			this.password = new BigInteger(130, random).toString(32).substring(0, 8);
 		}
 	}
 
