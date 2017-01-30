@@ -25,7 +25,7 @@ public class Session implements Serializable {
 	private boolean expired;
 
 	public Session(String sessionId, String userName, Integer timeout) {
-		Preconditions.checkNotNull(sessionId, "The sessionId name cannot be null.");
+		Preconditions.checkNotNull(sessionId, "The sessionId cannot be null.");
 		Preconditions.checkNotNull(userName, "The userName cannot be null.");
 		Preconditions.checkNotNull(timeout, "The timeout cannot be null.");
 

@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 @Transactional
 public class UserController {
 
-	private int defaultTimeout;
+	private int defaultTimeout = 10 * 60 * 60;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -43,7 +43,7 @@ public class UserController {
 
 		User aUser = userRepository.findByUserName(userName);
 		Preconditions.checkArgument(aUser != null, "The user name: " + userName + " does not exists.");
-		Preconditions.checkArgument(aUser.getPassword().equals(password), "");
+		Preconditions.checkArgument(aUser.getPassword().equals(password), "The passwords don't match.");
 
 		String sessionId = generateNewSessionId(userName);
 		Session newSession = new Session(sessionId, userName, defaultTimeout);
@@ -104,6 +104,16 @@ public class UserController {
 		sessionRepository.save(currentSession);
 	}
 
+	@RequestMapping("/getSessionsOfUser")
+	@Transactional
+	public List<Session> getSessionsOfUser(@RequestParam(value = "userName") String userName) {
+
+		Preconditions.checkNotNull(userName, "The userName cannot be null.");
+		Preconditions.checkArgument(!userName.trim().isEmpty(), "The userName cannot be empty.");
+
+		return sessionRepository.findByUserName(userName);
+	}
+
 	@RequestMapping("/expireSessionsOfUser")
 	@Transactional
 	public void expireSessionsOfUser(@RequestParam(value = "userName") String userName) {
@@ -118,6 +128,19 @@ public class UserController {
 		}
 
 		sessionRepository.save(currentSessionsForUser);
+	}
+
+	@RequestMapping("/hasSessionExpired")
+	@Transactional
+	public boolean hasSessionExpired(@RequestParam(value = "sessionId") String sessionId) {
+
+		Preconditions.checkNotNull(sessionId, "The sessionId cannot be null.");
+		Preconditions.checkArgument(!sessionId.trim().isEmpty(), "The sessionId cannot be empty.");
+
+		Session currentSession = sessionRepository.findBySessionId(sessionId);
+		Preconditions.checkArgument(currentSession != null, "The session id: " + currentSession + " does not exist.");
+
+		return currentSession.isExpired();
 	}
 
 	@RequestMapping("/changePassword")
