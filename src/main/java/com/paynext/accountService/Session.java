@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Preconditions;
 
@@ -16,10 +17,13 @@ public class Session implements Serializable {
 	@Id
 	private String sessionId;
 
+	@NotNull
 	private String userName;
 
+	@NotNull
 	private Long lastAccessTime;
 
+	@NotNull
 	private Integer timeout;
 
 	private boolean expired;

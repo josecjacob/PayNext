@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Preconditions;
 
@@ -19,8 +20,10 @@ public class Account implements Serializable {
 	@Id
 	private String accountId;
 
+	@NotNull
 	private String userName;
 
+	@NotNull
 	private String accountHolderName;
 
 	private boolean tombstoned;
