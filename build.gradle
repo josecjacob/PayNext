@@ -21,6 +21,17 @@ repositories {
     mavenCentral()
 }
 
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'PayNext Account and User Services',
+        	'Main-Class': 'com.paynext.accountService.Application'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
