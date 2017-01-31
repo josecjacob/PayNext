@@ -9,6 +9,7 @@ import java.security.SecureRandom;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Preconditions;
 
@@ -20,8 +21,10 @@ public class User implements Serializable {
 	@Id
 	private String userName;
 
+	@NotNull
 	private String password;
 
+	@NotNull
 	private String accountType;
 
 	private String currentSessionId;
